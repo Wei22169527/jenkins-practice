@@ -1,0 +1,29 @@
+
+services:
+  jenkins:
+    image: my-jenkins-test:latest
+    environment:
+      DOCKER_HOST: tcp://docker:2376
+      DOCKER_CERT_PATH: /certs/client
+      DOCKER_TLS_VERIFY: "1"
+    ports:
+      - "127.0.0.1:8080:8080"
+    volumes:
+      - jenkins_practice_data:/var/jenkins_home 
+      - docker_certs:/certs/client:ro
+  dind:
+    image: docker:dind
+    privileged: true
+    environment:
+      DOCKER_TLS_CERTDIR: /certs
+    volumes:
+      - docker_certs:/certs/client
+      - docker_data:/var/lib/docker
+    networks:
+      default:
+        aliases:
+          - docker
+volumes:
+  jenkins_practice_data:
+  docker_certs:
+  docker_data:

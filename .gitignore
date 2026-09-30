@@ -1,0 +1,18 @@
+# Local environment variables
+.env
+.env.*
+
+# Jenkins local data
+jenkins_home/
+jenkins_data/
+
+# TLS certificates and private keys
+certs/
+*.pem
+*.key
+
+# Local backup files
+compose.backup.yaml
+
+# Temporary files
+*.log
