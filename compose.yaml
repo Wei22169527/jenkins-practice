@@ -1,29 +1,58 @@
 
 services:
+  # Jenkins CI/CD server
   jenkins:
+    # Custom Jenkins image with Docker CLI installed
     image: my-jenkins-test:latest
+
     environment:
+      # Connect to the Docker-in-Docker daemon
       DOCKER_HOST: tcp://docker:2376
+      # Location of client TLS certificates
       DOCKER_CERT_PATH: /certs/client
+      # Require TLS verification
       DOCKER_TLS_VERIFY: "1"
+
     ports:
+      # Allow access to Jenkins from the local computer only
       - "127.0.0.1:8080:8080"
+
     volumes:
-      - jenkins_practice_data:/var/jenkins_home 
+      # Persist Jenkins configuration, jobs and build history
+      - jenkins_practice_data:/var/jenkins_home
+      # Mount Docker client certificates as read-only
       - docker_certs:/certs/client:ro
+
+  # Docker-in-Docker service for Jenkins image builds
   dind:
     image: docker:dind
+
+    # Required by this DinD configuration;
+    # grants elevated privileges to the container
     privileged: true
+
     environment:
+      # Enable automatic generation of TLS certificates
       DOCKER_TLS_CERTDIR: /certs
+
     volumes:
+      # Share TLS client certificates with Jenkins
       - docker_certs:/certs/client
+      # Persist Docker images and other daemon data
       - docker_data:/var/lib/docker
+      # Share Jenkins workspace for Docker Pipeline builds
+      - jenkins_practice_data:/var/jenkins_home
+
     networks:
       default:
         aliases:
+          # Allow Jenkins to reach this service as "docker"
           - docker
+
 volumes:
+  # Persistent Jenkins data
   jenkins_practice_data:
+  # Shared Docker TLS certificates
   docker_certs:
+  # Persistent Docker daemon data
   docker_data:
